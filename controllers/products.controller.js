@@ -1,5 +1,11 @@
-const { json } = require("express/lib/response");
 const Product = require("../models/product.model");
+
+async function findProduct(productId) {
+  const product = await Product.findById(productId);
+  if (!product) {
+    return res.status(404).json({ msg: "Product not found" });
+  }
+}
 
 const createProduct = async (req, res) => {
   try {
@@ -21,11 +27,8 @@ const getAllProducts = async (req, res) => {
 
 const getSingleProduct = async (req, res) => {
   try {
-    const productId = req.params.productId;
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ msg: "Product not found" });
-    }
+    const { productId } = req.params;
+    const product = findProduct(productId);
     res.status(200).json(product);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -34,11 +37,8 @@ const getSingleProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const productId = req.params.productId;
-    let product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ msg: "Product not found" });
-    }
+    const { productId } = req.params;
+    let product = findProduct(productId);
     product = await Product.findByIdAndUpdate(productId, req.body, {
       new: true,
     });
@@ -50,11 +50,8 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
-    const productId = req.params.productId;
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ msg: "Product not found" });
-    }
+    const { productId } = req.params;
+    findProduct(productId);
     await Product.findByIdAndDelete(productId);
     res.status(200).json({ msg: "Product deleted." });
   } catch (error) {
